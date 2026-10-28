@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>You're Invited to Sunday Curated</title>
+<meta name="description" content="Someone you know invited you to Sunday Curated.">
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --paper: #FFFEFC; --wash: #F1F3ED; --sage: #AFC4A2; --accent: #32482B;
+    --moss: #546B49; --ink: #141712; --ink-soft: #4A4F47; --rule: #DDE2D6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Iowan Old Style", "Palatino", Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 440px; margin: 0 auto; padding: 40px 20px 48px; }
+  .mark { text-align: center; font-size: 15px; color: var(--moss); letter-spacing: 0.02em; }
+  .masthead { text-align: center; font-weight: 800; font-size: 34px; color: var(--accent); margin: 4px 0 24px; }
+  .masthead small { font-size: 15px; font-weight: 600; font-style: italic; vertical-align: top; margin-right: 4px; }
+  .who { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 14px;
+         background: var(--wash); border: 1.5px solid var(--rule); }
+  .face { width: 56px; height: 56px; border-radius: 13px; background: var(--sage); object-fit: cover; flex: none; }
+  .who h1 { font-size: 22px; margin: 0; line-height: 1.25; }
+  .who p { margin: 2px 0 0; color: var(--ink-soft); font-size: 15px; }
+  h2 { font-size: 17px; margin: 28px 0 10px; }
+  ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  li { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 12px;
+       background: #fff; border: 1.5px solid var(--rule); font-size: 16px; line-height: 1.4; }
+  .num { flex: none; width: 28px; height: 28px; border-radius: 8px; background: var(--sage);
+         color: var(--accent); font-weight: 800; display: grid; place-items: center; font-size: 15px; }
+  li b { display: block; }
+  li span { color: var(--ink-soft); font-size: 14px; }
+  .btn { display: block; width: 100%; text-align: center; text-decoration: none; border: 0; cursor: pointer;
+         font: inherit; font-weight: 800; font-size: 19px; padding: 17px 18px; border-radius: 12px; margin-top: 10px; }
+  .primary { background: var(--accent); color: var(--paper); }
+  .secondary { background: #fff; color: var(--accent); border: 1.5px solid var(--accent); font-size: 17px; }
+  .quiet { text-align: center; color: var(--ink-soft); font-size: 14px; margin-top: 18px; line-height: 1.5; }
+  .notice { padding: 16px; border-radius: 12px; background: var(--wash); border: 1.5px solid var(--rule);
+            font-size: 16px; line-height: 1.45; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <div class="mark">&#10045;</div>
+  <div class="masthead"><small>The</small>Sunday Curated</div>
+
+  <section id="loading"><p class="quiet">Opening your invite</p></section>
+
+  <section id="invite" hidden>
+    <div class="who">
+      <img class="face" id="face" alt="" hidden>
+      <div class="face" id="faceBlank"></div>
+      <div>
+        <h1 id="headline">You're invited</h1>
+        <p>A weekly paper made only of the people you know.</p>
+      </div>
+    </div>
+
+    <div id="iphone">
+      <h2>Two steps to join</h2>
+      <ol>
+        <li><div class="num">1</div><div><b>Get TestFlight</b><span>Apple's free app for trying new apps. Install it, then come back here.</span></div></li>
+        <li><div class="num">2</div><div><b>Get Sunday Curated</b><span>Tap the button below, then tap Accept and Install in TestFlight. When Curated opens, tap Allow Paste so it knows who invited you.</span></div></li>
+      </ol>
+      <a class="btn secondary" href="https://apps.apple.com/app/testflight/id899247664">1. Get TestFlight</a>
+      <button class="btn primary" id="get">2. Get Sunday Curated</button>
+      <a class="btn secondary" id="open" href="#">I Already Have Curated</a>
+    </div>
+
+    <div id="other" hidden>
+      <h2>Curated is on iPhone for now</h2>
+      <p class="notice">Open this link on an iPhone to join. You can text it to yourself or to someone in your family with an iPhone.</p>
+    </div>
+  </section>
+
+  <section id="expired" hidden>
+    <p class="notice">This invite has expired or was turned off. Ask whoever sent it for a new one.</p>
+  </section>
+
+  <p class="quiet">Only people already in the sender's contacts can join through this link.</p>
+</main>
+<script>
+(function () {
+  var SUPABASE = "https://okjdumnscgtubeyrzekt.supabase.co";
+  var KEY = "sb_publishable_X1ms6ajgRsfyzcB3_2VvZg_IWe54LSX";
+  var TESTFLIGHT = "https://testflight.apple.com/join/CG3y8wJm";
+
+  var code = (new URLSearchParams(location.search).get("c") || "").toUpperCase().replace(/[^0-9A-Z]/g, "");
+  var show = function (id) { document.getElementById(id).hidden = false; };
+  var hide = function (id) { document.getElementById(id).hidden = true; };
+
+  var iPhone = /iPhone|iPod/.test(navigator.userAgent);
+  if (!iPhone) { hide("iphone"); show("other"); }
+
+  // The address of this page, with its code, is what the app reads back.
+  var link = location.origin + location.pathname + "?c=" + code;
+
+  document.getElementById("open").href = "curated://link/" + code;
+  document.getElementById("get").addEventListener("click", function () {
+    var go = function () { location.href = TESTFLIGHT; };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(go, go);
+        return;
+      }
+    } catch (e) {}
+    go();
+  });
+
+  if (code.length < 8) { hide("loading"); show("expired"); return; }
+
+  fetch(SUPABASE + "/rest/v1/rpc/invite_link_preview", {
+    method: "POST",
+    headers: { "apikey": KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ p_code: code })
+  })
+    .then(function (r) { return r.ok ? r.json() : []; })
+    .then(function (rows) {
+      hide("loading");
+      var row = rows && rows[0];
+      if (!row) { show("expired"); return; }
+      var first = (row.first_name || "").trim();
+      document.getElementById("headline").textContent =
+        first ? first + " invited you to Sunday Curated" : "You're invited to Sunday Curated";
+      if (row.avatar_key) {
+        var img = document.getElementById("face");
+        img.src = SUPABASE + "/storage/v1/object/public/avatars/" + encodeURI(row.avatar_key);
+        img.hidden = false; hide("faceBlank");
+      }
+      show("invite");
+    })
+    .catch(function () { hide("loading"); show("invite"); });
+})();
+</script>
+</body>
+</html>
